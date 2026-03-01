@@ -38,9 +38,39 @@ export interface SudokuGraph{
   adjacency: number[][] // 81×81 matrix of 0s and 1s; 1 means connected by edge
 }
 
-
-
 export class SudokuEngine {
+
+  private buildGraph() : SudokuGraph {
+  //initalizing graph data structure
+  const nodes: GraphNode[] = []; 
+  const edges: GraphEdge[] = []; 
+  const adjacency: number[][] = Array.from({ length: 81 }, () => []);
+
+  for(let i = 0; i<9; i++){
+    nodes.push({index: i, row: Math.floor(i/9), col: i%9}); //creating nodes for each cell
+  }
+  //create edges for nodes that share a row, col, or box
+  for(let i=0; i<81; i++){
+    const current_row = Math.floor(i/9);
+    const current_col = i%9;
+    const current_node = Math.floor(current_row/3) *3 + Math.floor(current_col/3); //calculating box index
+
+    //
+    for (let j=i+1; j<81; j++){
+      const target_row = Math.floor(j/9);
+      const target_col = j%9;
+      const target_node = Math.floor(target_row/3) *3 + Math.floor(target_col/3); //calculating box index
+
+      //if nodes share a row, col, or box they are connected by an edge
+      if(current_row === target_row || current_col === target_col || current_node === target_node){
+        edges.push({source: i, target: j}); //adding edge between connected nodes
+        adjacency[i].push(j);
+        adjacency[j].push(i); //undirected edge
+      }
+    }
+  }
+  return {nodes, edges, adjacency};
+}
 
   // TODO:
   //   1. Loop from the last index down to 1:
