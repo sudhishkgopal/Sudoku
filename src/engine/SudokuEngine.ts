@@ -18,6 +18,7 @@ export interface PuzzleResult {
   puzzle: SudokuGrid;
   // The unique, complete solution for validation and graph rendering.
   solution: SudokuGrid;
+  graph: SudokuGraph;
 }
 
 export interface GraphNode {
@@ -29,6 +30,12 @@ export interface GraphNode {
 export interface GraphEdge{
   source: number; //node index
   target: number; //node index
+}
+
+export interface SudokuGraph{
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  adjacency: number[][] // 81×81 matrix of 0s and 1s; 1 means connected by edge
 }
 
 
