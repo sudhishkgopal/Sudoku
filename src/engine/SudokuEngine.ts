@@ -1,7 +1,9 @@
-// A 9×9 grid. 0 represents an empty cell. 
+import { GRID_SIZE, CELL_COUNT, BOX_SIZE } from './constants';
+
+// A 9×9 grid. 0 represents an empty cell.
 export type SudokuGrid = number[][];
 
-// A single cell identified by its row and column (0-indexed). 
+// A single cell identified by its row and column (0-indexed).
 export interface CageCell {
   row: number;
   col: number;
@@ -42,24 +44,24 @@ export class SudokuEngine {
 
   private buildGraph() : SudokuGraph {
   //initalizing graph data structure
-  const nodes: GraphNode[] = []; 
-  const edges: GraphEdge[] = []; 
-  const adjacency: number[][] = Array.from({ length: 81 }, () => []);
+  const nodes: GraphNode[] = [];
+  const edges: GraphEdge[] = [];
+  const adjacency: number[][] = Array.from({ length: CELL_COUNT }, () => []);
 
-  for(let i = 0; i<9; i++){
-    nodes.push({index: i, row: Math.floor(i/9), col: i%9}); //creating nodes for each cell
+  for(let i = 0; i<GRID_SIZE; i++){
+    nodes.push({index: i, row: Math.floor(i/GRID_SIZE), col: i%GRID_SIZE}); //creating nodes for each cell
   }
   //create edges for nodes that share a row, col, or box
-  for(let i=0; i<81; i++){
-    const current_row = Math.floor(i/9);
-    const current_col = i%9;
-    const current_node = Math.floor(current_row/3) *3 + Math.floor(current_col/3); //calculating box index
+  for(let i=0; i<CELL_COUNT; i++){
+    const current_row = Math.floor(i/GRID_SIZE);
+    const current_col = i%GRID_SIZE;
+    const current_node = Math.floor(current_row/BOX_SIZE) *BOX_SIZE + Math.floor(current_col/BOX_SIZE); //calculating box index
 
     //
-    for (let j=i+1; j<81; j++){
-      const target_row = Math.floor(j/9);
-      const target_col = j%9;
-      const target_node = Math.floor(target_row/3) *3 + Math.floor(target_col/3); //calculating box index
+    for (let j=i+1; j<CELL_COUNT; j++){
+      const target_row = Math.floor(j/GRID_SIZE);
+      const target_col = j%GRID_SIZE;
+      const target_node = Math.floor(target_row/BOX_SIZE) *BOX_SIZE + Math.floor(target_col/BOX_SIZE); //calculating box index
 
       //if nodes share a row, col, or box they are connected by an edge
       if(current_row === target_row || current_col === target_col || current_node === target_node){
@@ -92,12 +94,12 @@ export class SudokuEngine {
 
   private clone(grid: SudokuGrid): SudokuGrid {
     // TODO: create the 9×9 grid
-      return grid.map(row => [...row]); 
+      return grid.map(row => [...row]);
   }
 
   // TODO:
-  //   1. ROW CHECK — scan all 9 columns in `row`; if any equals `num` 
-  //   2. COLUMN CHECK — scan all 9 rows in `col`; if any equals `num` 
+  //   1. ROW CHECK — scan all 9 columns in `row`; if any equals `num`
+  //   2. COLUMN CHECK — scan all 9 rows in `col`; if any equals `num`
   //   3. BOX CHECK:
   //        a. boxRow = floor(row / 3) * 3   (top-left corner of the 3×3 box)
   //        b. boxCol = floor(col / 3) * 3
@@ -105,16 +107,16 @@ export class SudokuEngine {
   //   4. All checks passed return true
   private isValid(grid: SudokuGrid, row: number, col: number, num: number): boolean {
     // TODO: implement row / column / box constraint check
-    for(let current_row = 0; current_row<9; current_row++){
+    for(let current_row = 0; current_row<GRID_SIZE; current_row++){
       if(grid[current_row][col] === num) return false; //column check
     }
-    for(let current_col = 0; current_col <9; current_col++){
+    for(let current_col = 0; current_col <GRID_SIZE; current_col++){
       if(grid[row][current_col] ===num) return false; //row check
     }
-    const boxRow = Math.floor(row/3) *3; //3x3 box for row check 
-    const boxCol = Math.floor(col/3) *3; //3x3 box for column check
-    for(let r = boxRow; r<boxRow +3; r++){
-      for(let c = boxCol; c<boxCol +3; c++){
+    const boxRow = Math.floor(row/BOX_SIZE) *BOX_SIZE; //3x3 box for row check
+    const boxCol = Math.floor(col/BOX_SIZE) *BOX_SIZE; //3x3 box for column check
+    for(let r = boxRow; r<boxRow +BOX_SIZE; r++){
+      for(let c = boxCol; c<boxCol +BOX_SIZE; c++){
         if(grid[r][c] === num) return false; //box check
       }
     }
