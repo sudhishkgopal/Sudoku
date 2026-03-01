@@ -43,7 +43,7 @@ export class SudokuEngine {
 
   private clone(grid: SudokuGrid): SudokuGrid {
     // TODO: create the 9×9 grid
-    throw new Error("Not implemented");
+      return grid.map(row => [...row]); 
   }
 
   // TODO:
