@@ -20,6 +20,19 @@ export interface PuzzleResult {
   solution: SudokuGrid;
 }
 
+export interface GraphNode {
+  index: number; //0-80
+  row: number; //0-8
+  col: number; //0-8
+}
+
+export interface GraphEdge{
+  source: number; //node index
+  target: number; //node index
+}
+
+
+
 export class SudokuEngine {
 
   // TODO:
