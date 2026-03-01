@@ -29,7 +29,11 @@ export class SudokuEngine {
   //   2. Return the shuffled copy
   private shuffle<T>(array: T[]): T[] {
     // TODO: implement shuffle
-    throw new Error("Not implemented");
+    for(let i = array.length - 1; i>0; i--){
+      const j = Math.floor(Math.random() * (i+1));
+      [array[i], array[j]] = [array[j], array[i]]; //swap
+    }
+    return array;
   }
 
 
