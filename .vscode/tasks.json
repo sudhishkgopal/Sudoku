@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Auto Git Push",
+      "type": "shell",
+      "command": "git add . && git commit -m \"${input:commitMessage}\" && git push origin main",
+      "options": {
+        "shell": {
+          "executable": "cmd.exe",
+          "args": ["/C"]
+        }
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "commitMessage",
+      "description": "Enter your commit message:",
+      "default": "Update Sudoku Game",
+      "type": "promptString"
+    }
+  ]
+}

@@ -36,7 +36,6 @@ export class SudokuEngine {
     return array;
   }
 
-
   // TODO:
   //   1. Map each row to a shallow copy of that row ([...row])
   //   2. Return the new 9-element array of copied rows
@@ -54,12 +53,10 @@ export class SudokuEngine {
   //        b. boxCol = floor(col / 3) * 3
   //        c. Scan the 3×3 region; if any cell equals `num`
   //   4. All checks passed return true
- 
   private isValid(grid: SudokuGrid, row: number, col: number, num: number): boolean {
     // TODO: implement row / column / box constraint check
     throw new Error("Not implemented");
   }
-
 
   // TODO:
   //   1. Scan the grid row-by-row, column-by-column for the first 0 (empty cell)
