@@ -22,3 +22,9 @@ export const DIFFICULTY = {
 
 export const MIN_CLUES = 17; //minimum number of clues for a valid Sudoku puzzle
 export const MAX_CLUES = 81; //maximum number of clues (a fully filled grid)
+
+//TODO add constants for Killer Sudoku
+//Killer Sudoku constants
+//export const CAGE_SIZE;
+//export const MIN_CAGE_SIZE;
+//export const MAX_CAGE_SIZE;
