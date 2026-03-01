@@ -55,7 +55,20 @@ export class SudokuEngine {
   //   4. All checks passed return true
   private isValid(grid: SudokuGrid, row: number, col: number, num: number): boolean {
     // TODO: implement row / column / box constraint check
-    throw new Error("Not implemented");
+    for(let current_row = 0; current_row<9; current_row++){
+      if(grid[current_row][col] === num) return false; //column check
+    }
+    for(let current_col = 0; current_col <9; current_col++){
+      if(grid[row][current_col] ===num) return false; //row check
+    }
+    const boxRow = Math.floor(row/3) *3; //3x3 box for row check 
+    const boxCol = Math.floor(col/3) *3; //3x3 box for column check
+    for(let r = boxRow; r<boxRow +3; r++){
+      for(let c = boxCol; c<boxCol +3; c++){
+        if(grid[r][c] === num) return false; //box check
+      }
+    }
+    return true; //all checks passed
   }
 
   // TODO:
