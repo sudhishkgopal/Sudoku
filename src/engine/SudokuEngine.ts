@@ -151,8 +151,9 @@ export class SudokuEngine {
         }
         return false; //no valid digit found, trigger backtrack
       }
-      return true;
+      
     }
+    return true;
   }
 
 
