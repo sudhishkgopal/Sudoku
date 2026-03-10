@@ -161,9 +161,11 @@ export class SudokuEngine {
   //   1. Create a 9×9 grid filled with 0s
   //   2. Call fillBoard(grid)
   //   3. Return the completed grid
-  private generateSolution(): SudokuGrid {
+  private generateSolution(adjacency: number[][]): SudokuGrid {
     // TODO: build empty grid and fill it
-    throw new Error("Not implemented");
+    const grid: SudokuGrid = Array.from({length: GRID_SIZE}, () => Array(GRID_SIZE).fill(0));
+    this.fillBoard(grid, adjacency);
+    return grid;
   }
 
 
