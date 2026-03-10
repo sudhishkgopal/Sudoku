@@ -135,9 +135,24 @@ export class SudokuEngine {
   //             iv. Otherwise reset grid[row][col] = 0  (backtrack)
   //   5. No digit worked return false (trigger backtrack in caller)
 
-  private fillBoard(grid: SudokuGrid): boolean {
+  private fillBoard(grid: SudokuGrid, adjacency: number[][]): boolean {
     // TODO: implement randomised backtracking fill
-    throw new Error("Not implemented");
+    for(let i=0; i<CELL_COUNT; i++){
+      const row = Math.floor(i/GRID_SIZE);
+      const col = i%GRID_SIZE;
+      if(grid[row][col] === 0){ //empty cell found
+        const digits = this.shuffle([1,2,3,4,5,6,7,8,9]); //shuffle digits for randomness
+        for(const digit of digits){
+          if(this.isValid(grid, row, col, digit)){ //check if digit can be placed
+            grid[row][col] = digit; 
+            if(this.fillBoard(grid, adjacency)) return true; //recurse
+            grid[row][col] = 0; //backtrack
+          }
+        }
+        return false; //no valid digit found, trigger backtrack
+      }
+      return true;
+    }
   }
 
 
