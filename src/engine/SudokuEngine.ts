@@ -1,4 +1,4 @@
-import { GRID_SIZE, CELL_COUNT, BOX_SIZE } from './constants';
+import { GRID_SIZE, CELL_COUNT, BOX_SIZE, MAX_CLUES, MIN_CLUES } from './constants';
 
 // A 9×9 grid. 0 represents an empty cell.
 export type SudokuGrid = number[][];
@@ -213,8 +213,26 @@ export class SudokuEngine {
   //   7. Return { puzzle, solution }
 
   public generatePuzzle(clueCount: number): PuzzleResult {
-    // TODO: implement hole-digging with uniqueness verification
-    throw new Error("Not implemented");
+    const clues = Math.max(MIN_CLUES, Math.min(MAX_CLUES, clueCount)); 
+    const graph = this.buildGraph();
+    const solution = this.generateSolution(graph.adjacency);
+    const puzzle = this.clone(solution);
+    const positions = this.shuffle(Array.from({length: CELL_COUNT}, (_, i) => [Math.floor(i/GRID_SIZE), i%GRID_SIZE])); //shuffled list of cell positions
+    let cluesLeft = CELL_COUNT;
+
+    for(const [row, col] of positions){
+      if(cluesLeft <= clues) break;
+      //const row = Math.floor(index/GRID_SIZE);
+      //const col = index%GRID_SIZE;
+      const backup = puzzle[row][col];
+      puzzle[row][col] = 0;
+      if(this.countSolutions(this.clone(puzzle), graph.adjacency, 2) === 1){ //check uniqueness on clone
+        cluesLeft--; //removal successful
+      } else {
+        puzzle[row][col] = backup; //restore cell
+      }
+    }
+    return {puzzle, solution, graph};
   }
 
 
