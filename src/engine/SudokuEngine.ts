@@ -80,7 +80,6 @@ export class SudokuEngine {
   //        b. Swap elements at i and j
   //   2. Return the shuffled copy
   private shuffle<T>(array: T[]): T[] {
-    // TODO: implement shuffle
     for(let i = array.length - 1; i>0; i--){
       const j = Math.floor(Math.random() * (i+1));
       [array[i], array[j]] = [array[j], array[i]]; //swap
@@ -93,7 +92,6 @@ export class SudokuEngine {
   //   2. Return the new 9-element array of copied rows
 
   private clone(grid: SudokuGrid): SudokuGrid {
-    // TODO: create the 9×9 grid
       return grid.map(row => [...row]);
   }
 
@@ -106,7 +104,6 @@ export class SudokuEngine {
   //        c. Scan the 3×3 region; if any cell equals `num`
   //   4. All checks passed return true
   private isValid(grid: SudokuGrid, row: number, col: number, num: number): boolean {
-    // TODO: implement row / column / box constraint check
     for(let current_row = 0; current_row<GRID_SIZE; current_row++){
       if(grid[current_row][col] === num) return false; //column check
     }
@@ -136,7 +133,6 @@ export class SudokuEngine {
   //   5. No digit worked return false (trigger backtrack in caller)
 
   private fillBoard(grid: SudokuGrid, adjacency: number[][]): boolean {
-    // TODO: implement randomised backtracking fill
     for(let i=0; i<CELL_COUNT; i++){
       const row = Math.floor(i/GRID_SIZE);
       const col = i%GRID_SIZE;
@@ -162,7 +158,7 @@ export class SudokuEngine {
   //   2. Call fillBoard(grid)
   //   3. Return the completed grid
   private generateSolution(adjacency: number[][]): SudokuGrid {
-    // TODO: build empty grid and fill it
+  
     const grid: SudokuGrid = Array.from({length: GRID_SIZE}, () => Array(GRID_SIZE).fill(0));
     this.fillBoard(grid, adjacency);
     return grid;
@@ -180,9 +176,25 @@ export class SudokuEngine {
   //             iii.Reset grid[row][col] = 0
   //             iv. If count >= limit → return count early  (stop searching)
   //   5. Return count
-  private countSolutions(grid: SudokuGrid, limit: number): number {
+  private countSolutions(grid: SudokuGrid, adjacency: number[][], limit: number): number {
     // TODO: implement solution counter with early exit
-    throw new Error("Not implemented");
+    for(let i=0; i<CELL_COUNT; i++){
+      const row = Math.floor(i/GRID_SIZE);
+      const col = i%GRID_SIZE;
+      if(grid[row][col] === 0){ //empty cell found
+        let count = 0;
+        for(let digit=1; digit<=GRID_SIZE; digit++){
+          if(this.isValid(grid, row, col, digit)){
+            grid[row][col] = digit; //place digit
+            count += this.countSolutions(grid, adjacency, limit - count); //recurse
+            grid[row][col] = 0; //reset cell
+            if(count >= limit) return count; //early exit
+          }
+        }
+        return count; //return count for this cell
+      }
+    }
+    return 1; //complete solution found
   }
 
   // TODO:
