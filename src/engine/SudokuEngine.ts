@@ -48,7 +48,7 @@ export class SudokuEngine {
   const edges: GraphEdge[] = [];
   const adjacency: number[][] = Array.from({ length: CELL_COUNT }, () => []);
 
-  for(let i = 0; i<GRID_SIZE; i++){
+  for(let i = 0; i<CELL_COUNT; i++){
     nodes.push({index: i, row: Math.floor(i/GRID_SIZE), col: i%GRID_SIZE}); //creating nodes for each cell
   }
   //create edges for nodes that share a row, col, or box
