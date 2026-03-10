@@ -252,8 +252,65 @@ export class SudokuEngine {
   //        e. Push { id, cells, sum } to cages array
   //   4. Return cages
 
-  public generateCages(solution: SudokuGrid): Cage[] {
-    // TODO: implement BFS frontier cage growth
-    throw new Error("Not implemented");
+  public generateCages(solution: SudokuGrid, graph: SudokuGraph): Cage[] {
+    const assigned = new Array(CELL_COUNT).fill(false); //flat boolean array indexed by flat cell index
+    const cages: Cage[] = [];
+    let nextId = 0;
+
+    const sizeWeights = [1, 3, 3, 2, 1]; //weights for cage sizes 1-5
+    const totalWieght = sizeWeights.reduce((a, b) => a + b, 0);
+
+    const pickSize = (): number =>{
+      let r = Math.random() * totalWieght;
+      for(let i=0; i<sizeWeights.length; i++){
+        r -= sizeWeights[i];
+        if(r <= 0) return i+1;
+      }
+      return 1; //fallback
+    };
+
+    const orthogonalNeightbors = (index: number): number[] =>{
+      const row = Math.floor(index/GRID_SIZE);
+      const col = index%GRID_SIZE;
+
+      return([[row-1,col], [row+1,col], [row,col-1], [row,col+1]] as [number, number][]) //orthogonal neighbors
+        .filter(([r, c]) => r>=0 && r<GRID_SIZE && c>=0 && c<GRID_SIZE && !assigned[r*GRID_SIZE + c]) //in bounds and unassigned
+        .map(([r, c]) => r*GRID_SIZE + c); //convert to flat index
+    };
+
+    for(const seed of this.shuffle(Array.from({length: CELL_COUNT}, (_, i) => i))){ //shuffled cell indices
+      if(assigned[seed]) continue;
+
+      const cageIndicies: number[] = [seed];
+      assigned[seed] = true;
+      const targetSize = pickSize();
+
+      while(cageIndicies.length < targetSize){
+        const frontier = new Map<number, number>(); //flat index to flat index
+
+        for(const index of cageIndicies){
+          for(const neighbor of orthogonalNeightbors(index)){
+            frontier.set(neighbor, neighbor);
+          }
+        }
+
+        if(frontier.size === 0) break; //cage is surrounded
+
+        const candidates = [...frontier.values()];
+        const next = candidates[Math.floor(Math.random() * candidates.length)];
+        cageIndicies.push(next);
+        assigned[next] = true;
+      }
+
+      const cells: CageCell[] = cageIndicies.map(index =>({
+        row: Math.floor(index/GRID_SIZE),
+        col: index%GRID_SIZE
+      }));
+      const sum = cells.reduce((acc, cell) => acc + solution[cell.row][cell.col], 0);
+      cages.push({id: nextId++, cells, sum});
+    }
+    return cages;
   }
-}
+
+  }
+
