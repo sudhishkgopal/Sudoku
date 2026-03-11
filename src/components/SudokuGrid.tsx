@@ -4,7 +4,7 @@ import type { SudokuGrid } from "../engine/SudokuEngine";
 interface Props {
   puzzle: SudokuGrid;
   userGrid: SudokuGrid;
-  notes: Set<number>[][];
+  notes: number[][][];
   solution: SudokuGrid;
   selectedCell: [number, number] | null;
   onCellSelect: (row: number, col: number) => void;
@@ -90,7 +90,7 @@ export default function SudokuGridComponent({
                 >
                   {cell}
                 </span>
-              ) : cellNotes && cellNotes.size > 0 ? (
+              ) : cellNotes && cellNotes.length > 0 ? (
                 <div className="grid grid-cols-3 w-full h-full p-px">
                   {DIGITS.map((n) => (
                     <span
@@ -98,7 +98,7 @@ export default function SudokuGridComponent({
                       className="flex items-center justify-center text-gray-500"
                       style={{ fontSize: "0.45rem" }}
                     >
-                      {cellNotes.has(n) ? n : ""}
+                      {cellNotes.includes(n) ? n : ""}
                     </span>
                   ))}
                 </div>

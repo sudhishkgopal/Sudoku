@@ -9,6 +9,10 @@ interface Edge {
   target: number;
 }
 
+interface SameValueEdge extends Edge {
+  value: number;
+}
+
 interface Props {
   graph: SudokuGraph;
   solution: SudokuGrid;
@@ -33,6 +37,21 @@ export default function GraphView({ graph, solution }: Props) {
       return val !== EMPTY_CELL ? COLOR_PALETTE[val - 1] : "#4b5563";
     };
 
+    // Pre-compute same-value edges: all pairs of nodes sharing the same digit
+    const sameValueEdges: SameValueEdge[] = [];
+    for (let val = 1; val <= GRID_SIZE; val++) {
+      const group = graph.nodes.filter((n) => solution[n.row][n.col] === val);
+      for (let i = 0; i < group.length; i++) {
+        for (let j = i + 1; j < group.length; j++) {
+          sameValueEdges.push({
+            source: group[i].index,
+            target: group[j].index,
+            value: val,
+          });
+        }
+      }
+    }
+
     d3.select(el).selectAll("*").remove();
 
     const root = d3.select(el).append("g");
@@ -49,7 +68,7 @@ export default function GraphView({ graph, solution }: Props) {
       target: e.target,
     }));
 
-    // Edges
+    // Layer 1 — constraint edges (must-be-different: row/col/box)
     const linkSel = root
       .append("g")
       .selectAll<SVGLineElement, Edge>("line")
@@ -63,7 +82,22 @@ export default function GraphView({ graph, solution }: Props) {
       .attr("stroke-opacity", 0.2)
       .attr("stroke-width", 0.6);
 
-    // Nodes
+    // Layer 2 — same-value edges (dashed amber), hidden until a node is clicked
+    const sameValueSel = root
+      .append("g")
+      .selectAll<SVGLineElement, SameValueEdge>("line")
+      .data(sameValueEdges)
+      .join("line")
+      .attr("x1", (d) => nodeX(graph.nodes[d.source]))
+      .attr("y1", (d) => nodeY(graph.nodes[d.source]))
+      .attr("x2", (d) => nodeX(graph.nodes[d.target]))
+      .attr("y2", (d) => nodeY(graph.nodes[d.target]))
+      .attr("stroke", "#f59e0b")
+      .attr("stroke-opacity", 0)
+      .attr("stroke-width", 1.2)
+      .attr("stroke-dasharray", "3 2");
+
+    // Layer 3 — nodes
     const nodeSel = root
       .append("g")
       .selectAll<SVGCircleElement, GraphNode>("circle")
@@ -77,7 +111,7 @@ export default function GraphView({ graph, solution }: Props) {
       .attr("stroke-width", 1.5)
       .style("cursor", "pointer");
 
-    // Labels
+    // Layer 4 — labels (on top so they're always readable)
     root
       .append("g")
       .selectAll<SVGTextElement, GraphNode>("text")
@@ -108,12 +142,12 @@ export default function GraphView({ graph, solution }: Props) {
         .attr("stroke", "#6b7280")
         .attr("stroke-opacity", 0.2)
         .attr("stroke-width", 0.6);
+      sameValueSel.attr("stroke-opacity", 0);
     };
 
     nodeSel.on("click", (event, d) => {
       event.stopPropagation();
 
-      // Clicking same node deselects
       if (selected === d.index) {
         selected = null;
         resetStyles();
@@ -121,20 +155,47 @@ export default function GraphView({ graph, solution }: Props) {
       }
 
       selected = d.index;
+      const selectedVal = solution[d.row][d.col];
       const neighborSet = new Set(graph.adjacency[d.index]);
+      const sameValueSet = new Set(
+        graph.nodes
+          .filter(
+            (n) =>
+              solution[n.row][n.col] === selectedVal && n.index !== d.index,
+          )
+          .map((n) => n.index),
+      );
 
-      // Dim unrelated nodes, enlarge selected + neighbors
+      // Selected node → white ring
+      // Constraint neighbors → normal ring, full opacity
+      // Same-value nodes → amber ring, full opacity
+      // Everything else → dimmed
       nodeSel
-        .attr("opacity", (n) =>
-          n.index === d.index || neighborSet.has(n.index) ? 1 : 0.12,
-        )
-        .attr("r", (n) =>
-          n.index === d.index ? 11 : neighborSet.has(n.index) ? 9 : 7,
-        )
-        .attr("stroke", (n) => (n.index === d.index ? "#ffffff" : "#111827"))
-        .attr("stroke-width", (n) => (n.index === d.index ? 2.5 : 1.5));
+        .attr("opacity", (n) => {
+          if (
+            n.index === d.index ||
+            neighborSet.has(n.index) ||
+            sameValueSet.has(n.index)
+          )
+            return 1;
+          return 0.12;
+        })
+        .attr("r", (n) => {
+          if (n.index === d.index) return 11;
+          if (neighborSet.has(n.index) || sameValueSet.has(n.index)) return 9;
+          return 7;
+        })
+        .attr("stroke", (n) => {
+          if (n.index === d.index) return "#ffffff";
+          if (sameValueSet.has(n.index)) return "#f59e0b";
+          return "#111827";
+        })
+        .attr("stroke-width", (n) => {
+          if (n.index === d.index || sameValueSet.has(n.index)) return 2.5;
+          return 1.5;
+        });
 
-      // Highlight connected edges, dim the rest
+      // Constraint edges for selected node → blue, rest → very dim
       linkSel
         .attr("stroke", (e) =>
           e.source === d.index || e.target === d.index ? "#60a5fa" : "#6b7280",
@@ -145,9 +206,13 @@ export default function GraphView({ graph, solution }: Props) {
         .attr("stroke-width", (e) =>
           e.source === d.index || e.target === d.index ? 1.5 : 0.5,
         );
+
+      // Same-value edges for selected node → amber dashed, rest hidden
+      sameValueSel.attr("stroke-opacity", (e) =>
+        e.source === d.index || e.target === d.index ? 0.85 : 0,
+      );
     });
 
-    // Click background to deselect
     d3.select(el).on("click", () => {
       selected = null;
       resetStyles();
@@ -159,10 +224,26 @@ export default function GraphView({ graph, solution }: Props) {
   }, [graph, solution]);
 
   return (
-    <svg
-      ref={svgRef}
-      className="rounded-lg bg-gray-900 border border-gray-700 touch-none"
-      style={{ width: "min(95vw, 450px)", height: "min(95vw, 450px)" }}
-    />
+    <div>
+      <div className="flex gap-6 justify-center text-xs text-gray-400 mb-2">
+        <span className="flex items-center gap-1.5">
+          <svg width="20" height="8">
+            <line x1="0" y1="4" x2="20" y2="4" stroke="#60a5fa" strokeWidth="2" />
+          </svg>
+          Constraint
+        </span>
+        <span className="flex items-center gap-1.5">
+          <svg width="20" height="8">
+            <line x1="0" y1="4" x2="20" y2="4" stroke="#f59e0b" strokeWidth="2" strokeDasharray="3 2" />
+          </svg>
+          Same value
+        </span>
+      </div>
+      <svg
+        ref={svgRef}
+        className="rounded-lg bg-gray-900 border border-gray-700 touch-none"
+        style={{ width: "min(95vw, 450px)", height: "min(95vw, 450px)" }}
+      />
+    </div>
   );
 }
