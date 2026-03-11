@@ -16,14 +16,14 @@ export default function App() {
   const [userGrid, setUserGrid] = useState<SudokuGrid>([]);
   const [graph, setGraph] = useState<SudokuGraph | null>(null);
   const [notes, setNotes] = useState<Set<number>[][][]>([]);
-  const [selectedCell, setSelectedCell] = useState<[number, number] | null>(
-    null,
-  );
+  const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null,);  
   const [notesMode, setNotesMode] = useState(false);
   const [history, setHistory] = useState<SudokuGrid[]>([]);
   const [isComplete, setIsComplete] = useState(false);
   const [showGraph, setShowGraph] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>("MEDIUM");
+    const [elapsed, setElapsed] = useState(0);
+  
 
   const startNewGame = useCallback((diff: Difficulty) => {
     const result = engine.generatePuzzle(DIFFICULTY[diff].clues);
@@ -41,11 +41,18 @@ export default function App() {
     setIsComplete(false);
     setShowGraph(false);
     setNotesMode(false);
+    setElapsed(0);
   }, []);
 
   useEffect(() => {
     startNewGame("MEDIUM");
   }, []);
+
+  useEffect(() => {
+  if (isComplete) return;
+  const id = setInterval(() => setElapsed(s => s + 1), 1000);
+  return () => clearInterval(id);
+}, [isComplete]);
 
   const handleCellSelect = (row: number, col: number) => {
     if (puzzle[row]?.[col] !== EMPTY_CELL) return;
@@ -124,6 +131,10 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center py-6 px-4">
       <h1 className="text-2xl font-bold tracking-wide mb-4">Graph Sudoku</h1>
+
+      <p className="text-gray-400 text-sm mb-4 font-mono">
+        {String(Math.floor(elapsed / 60)).padStart(2, '0')}:{String(elapsed % 60).padStart(2, '0')}
+      </p>
 
       <div className="flex gap-2 mb-4">
         {(Object.keys(DIFFICULTY) as Difficulty[]).map((diff) => (
