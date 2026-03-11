@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, type Key } from "react";
 import { SudokuEngine } from "./engine/SudokuEngine";
 import type { SudokuGrid, SudokuGraph } from "./engine/SudokuEngine";
 import { DIFFICULTY, GRID_SIZE, EMPTY_CELL, DIGITS } from "./engine/constants";
@@ -54,6 +54,7 @@ export default function App() {
   const handleNumberInput = (num: number) => {
     if (!selectedCell) return;
     const [row, col] = selectedCell;
+    if(puzzle[row][col] !== EMPTY_CELL) return; //prevent input on given cells
 
     if (notesMode) {
       const newNotes = notes.map((r) => r.map((c) => new Set(c)));
@@ -90,9 +91,34 @@ export default function App() {
     setHistory((h) => h.slice(0, -1));
   };
 
+
   const remaining = DIGITS.map(
     (n) => GRID_SIZE - userGrid.flat().filter((cell) => cell === n).length,
   );
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();//prevent arrow keys from scrolling the page
+        setSelectedCell(prev =>{ 
+          if(!prev) return [0,0] as [number,number];
+          const [r,c] = prev;
+          if(e.key == 'ArrowUp') return [Math.max(0, r-1), c];
+          else if(e.key == 'ArrowDown') return [Math.min(GRID_SIZE, r+1), c]; 
+          else if(e.key == 'ArrowLeft') return [r, Math.max(0, c-1)];
+          else { 
+          return [r, Math.min(GRID_SIZE, c+1)];
+          }
+        });
+        return;
+      }
+      const num = parseInt(e.key);
+      if(num >= 1 && num <= 9) handleNumberInput(num);
+      if(e.key === 'Backspace' || e.key === 'Delete') handleErase();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [handleNumberInput, handleErase]);
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center py-6 px-4">
