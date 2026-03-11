@@ -79,8 +79,7 @@ export default function GraphView({ graph, solution }: Props) {
       .data(sim.nodes())
       .join("g")
       .call(
-        d3
-          .drag<SVGGElement, d3.SimulationNodeDatum>()
+        d3.drag<SVGGElement, d3.SimulationNodeDatum>()
           .on("start", (event, d) => {
             if (!event.active) sim.alphaTarget(0.3).restart();
             d.fx = d.x;

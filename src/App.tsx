@@ -5,6 +5,7 @@ import { DIFFICULTY, GRID_SIZE, EMPTY_CELL, DIGITS } from "./engine/constants";
 import SudokuGridComponent from "./components/SudokuGrid";
 import NumPad from "./components/NumPad";
 import Controls from "./components/Controls";
+import GraphView from "./components/GraphView";
 
 const engine = new SudokuEngine();
 type Difficulty = keyof typeof DIFFICULTY;
@@ -13,7 +14,7 @@ export default function App() {
   const [puzzle, setPuzzle] = useState<SudokuGrid>([]);
   const [solution, setSolution] = useState<SudokuGrid>([]);
   const [userGrid, setUserGrid] = useState<SudokuGrid>([]);
-  const [_graph, setGraph] = useState<SudokuGraph | null>(null);
+  const [graph, setGraph] = useState<SudokuGraph | null>(null);
   const [notes, setNotes] = useState<Set<number>[][][]>([]);
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(
     null,
@@ -54,7 +55,7 @@ export default function App() {
   const handleNumberInput = (num: number) => {
     if (!selectedCell) return;
     const [row, col] = selectedCell;
-    if(puzzle[row][col] !== EMPTY_CELL) return; //prevent input on given cells
+    if (puzzle[row][col] !== EMPTY_CELL) return; //prevent input on given cells
 
     if (notesMode) {
       const newNotes = notes.map((r) => r.map((c) => new Set(c)));
@@ -91,30 +92,29 @@ export default function App() {
     setHistory((h) => h.slice(0, -1));
   };
 
-
   const remaining = DIGITS.map(
     (n) => GRID_SIZE - userGrid.flat().filter((cell) => cell === n).length,
   );
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-        e.preventDefault();//prevent arrow keys from scrolling the page
-        setSelectedCell(prev =>{ 
-          if(!prev) return [0,0] as [number,number];
-          const [r,c] = prev;
-          if(e.key == 'ArrowUp') return [Math.max(0, r-1), c];
-          else if(e.key == 'ArrowDown') return [Math.min(GRID_SIZE, r+1), c]; 
-          else if(e.key == 'ArrowLeft') return [r, Math.max(0, c-1)];
-          else { 
-          return [r, Math.min(GRID_SIZE, c+1)];
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        e.preventDefault(); //prevent arrow keys from scrolling the page
+        setSelectedCell((prev) => {
+          if (!prev) return [0, 0] as [number, number];
+          const [r, c] = prev;
+          if (e.key == "ArrowUp") return [Math.max(0, r - 1), c];
+          else if (e.key == "ArrowDown") return [Math.min(GRID_SIZE, r + 1), c];
+          else if (e.key == "ArrowLeft") return [r, Math.max(0, c - 1)];
+          else {
+            return [r, Math.min(GRID_SIZE, c + 1)];
           }
         });
         return;
       }
       const num = parseInt(e.key);
-      if(num >= 1 && num <= 9) handleNumberInput(num);
-      if(e.key === 'Backspace' || e.key === 'Delete') handleErase();
+      if (num >= 1 && num <= 9) handleNumberInput(num);
+      if (e.key === "Backspace" || e.key === "Delete") handleErase();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -170,6 +170,12 @@ export default function App() {
         <p className="mt-4 text-green-400 font-semibold text-lg animate-pulse">
           Puzzle Complete!
         </p>
+      )}
+
+      {showGraph && graph && (
+        <div className="mt-4">
+          <GraphView graph={graph} solution={solution} />
+        </div>
       )}
     </div>
   );
