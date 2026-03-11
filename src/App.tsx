@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type Key } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { SudokuEngine } from "./engine/SudokuEngine";
 import type { SudokuGrid, SudokuGraph } from "./engine/SudokuEngine";
 import { DIFFICULTY, GRID_SIZE, EMPTY_CELL, DIGITS } from "./engine/constants";
@@ -104,10 +104,11 @@ export default function App() {
           if (!prev) return [0, 0] as [number, number];
           const [r, c] = prev;
           if (e.key == "ArrowUp") return [Math.max(0, r - 1), c];
-          else if (e.key == "ArrowDown") return [Math.min(GRID_SIZE, r + 1), c];
+          else if (e.key == "ArrowDown")
+            return [Math.min(GRID_SIZE - 1, r + 1), c];
           else if (e.key == "ArrowLeft") return [r, Math.max(0, c - 1)];
           else {
-            return [r, Math.min(GRID_SIZE, c + 1)];
+            return [r, Math.min(GRID_SIZE - 1, c + 1)];
           }
         });
         return;
