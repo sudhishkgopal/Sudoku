@@ -132,6 +132,15 @@ export default function App() {
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center py-6 px-4">
       <h1 className="text-2xl font-bold tracking-wide mb-4">Graph Sudoku</h1>
 
+      {/* DEV ONLY — remove before release */}
+      <button
+        onClick={() => { setUserGrid(solution.map(r => [...r])); setIsComplete(true); }}
+        className="mb-2 px-3 py-1 bg-red-800 text-xs rounded text-white"
+      >
+        [DEV] Complete
+      </button>
+      {/* END OF DEV*/}
+
       <p className="text-gray-400 text-sm mb-4 font-mono">
         {String(Math.floor(elapsed / 60)).padStart(2, '0')}:{String(elapsed % 60).padStart(2, '0')}
       </p>
