@@ -90,7 +90,7 @@ export default function SudokuGridComponent({
                 >
                   {cell}
                 </span>
-              ) : cellNotes && cellNotes.size > 0 ? (
+              ) : cellNotes && cellNotes. > 0 ? (
                 <div className="grid grid-cols-3 w-full h-full p-px">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
                     <span

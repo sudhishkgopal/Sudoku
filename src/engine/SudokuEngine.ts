@@ -252,7 +252,7 @@ export class SudokuEngine {
   //        e. Push { id, cells, sum } to cages array
   //   4. Return cages
 
-  public generateCages(solution: SudokuGrid, graph: SudokuGraph): Cage[] {
+  public generateCages(solution: SudokuGrid, _graph: SudokuGraph): Cage[] {
     const assigned = new Array(CELL_COUNT).fill(false); //flat boolean array indexed by flat cell index
     const cages: Cage[] = [];
     let nextId = 0;
