@@ -1,4 +1,4 @@
-import { GRID_SIZE, BOX_SIZE } from "../engine/constants";
+import { GRID_SIZE, BOX_SIZE, DIGITS, EMPTY_CELL } from "../engine/constants";
 import type { SudokuGrid } from "../engine/SudokuEngine";
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 
 function hasConflict(grid: SudokuGrid, row: number, col: number): boolean {
   const val = grid[row][col];
-  if (val === 0) return false;
+  if (val === EMPTY_CELL) return false;
   for (let c = 0; c < GRID_SIZE; c++)
     if (c !== col && grid[row][c] === val) return true;
   for (let r = 0; r < GRID_SIZE; r++)
@@ -44,7 +44,7 @@ export default function SudokuGridComponent({
     >
       {userGrid.map((row, ri) =>
         row.map((cell, ci) => {
-          const isGiven = puzzle[ri][ci] !== 0;
+          const isGiven = puzzle[ri][ci] !== EMPTY_CELL;
           const isSelected =
             selectedCell?.[0] === ri && selectedCell?.[1] === ci;
           const conflict = !isGiven && hasConflict(userGrid, ri, ci);
@@ -78,7 +78,7 @@ export default function SudokuGridComponent({
               onClick={() => onCellSelect(ri, ci)}
               className={`aspect-square flex items-center justify-center cursor-pointer select-none ${bg} ${borderR} ${borderB}`}
             >
-              {cell !== 0 ? (
+              {cell !== EMPTY_CELL ? (
                 <span
                   className={`text-lg font-semibold ${
                     isGiven
@@ -90,15 +90,15 @@ export default function SudokuGridComponent({
                 >
                   {cell}
                 </span>
-              ) : cellNotes && cellNotes. > 0 ? (
+              ) : cellNotes && cellNotes.length > 0 ? (
                 <div className="grid grid-cols-3 w-full h-full p-px">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
+                  {DIGITS.map((n) => (
                     <span
                       key={n}
                       className="flex items-center justify-center text-gray-500"
                       style={{ fontSize: "0.45rem" }}
                     >
-                      {cellNotes.has(n) ? n : ""}
+                      {cellNotes.includes(n) ? n : ""}
                     </span>
                   ))}
                 </div>

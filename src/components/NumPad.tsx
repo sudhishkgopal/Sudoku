@@ -1,3 +1,5 @@
+import { DIGITS } from "../engine/constants";
+
 interface Props {
   onNumber: (num: number) => void;
   onErase: () => void;
@@ -6,7 +8,7 @@ interface Props {
 export default function NumberPad({ onNumber, onErase }: Props) {
   return (
     <div className="mt-4 grid grid-cols-5 gap-2" style={{ width: 'min(95vw, 450px)' }}>
-      {[1,2,3,4,5,6,7,8,9].map(n => (
+      {DIGITS.map(n => (
         <button
           key={n}
           onClick={() => onNumber(n)}

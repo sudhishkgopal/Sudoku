@@ -1,4 +1,4 @@
-import { GRID_SIZE, CELL_COUNT, BOX_SIZE, MAX_CLUES, MIN_CLUES } from './constants';
+import { GRID_SIZE, CELL_COUNT, BOX_SIZE, MAX_CLUES, MIN_CLUES, DIGITS, EMPTY_CELL } from './constants';
 
 // A 9×9 grid. 0 represents an empty cell.
 export type SudokuGrid = number[][];
@@ -136,13 +136,13 @@ export class SudokuEngine {
     for(let i=0; i<CELL_COUNT; i++){
       const row = Math.floor(i/GRID_SIZE);
       const col = i%GRID_SIZE;
-      if(grid[row][col] === 0){ //empty cell found
-        const digits = this.shuffle([1,2,3,4,5,6,7,8,9]); //shuffle digits for randomness
+      if(grid[row][col] === EMPTY_CELL){ //empty cell found
+        const digits = this.shuffle([...DIGITS]); //shuffle digits for randomness
         for(const digit of digits){
           if(this.isValid(grid, row, col, digit)){ //check if digit can be placed
-            grid[row][col] = digit; 
+            grid[row][col] = digit;
             if(this.fillBoard(grid, adjacency)) return true; //recurse
-            grid[row][col] = 0; //backtrack
+            grid[row][col] = EMPTY_CELL; //backtrack
           }
         }
         return false; //no valid digit found, trigger backtrack
@@ -159,7 +159,7 @@ export class SudokuEngine {
   //   3. Return the completed grid
   private generateSolution(adjacency: number[][]): SudokuGrid {
   
-    const grid: SudokuGrid = Array.from({length: GRID_SIZE}, () => Array(GRID_SIZE).fill(0));
+    const grid: SudokuGrid = Array.from({length: GRID_SIZE}, () => Array(GRID_SIZE).fill(EMPTY_CELL));
     this.fillBoard(grid, adjacency);
     return grid;
   }
@@ -181,13 +181,13 @@ export class SudokuEngine {
     for(let i=0; i<CELL_COUNT; i++){
       const row = Math.floor(i/GRID_SIZE);
       const col = i%GRID_SIZE;
-      if(grid[row][col] === 0){ //empty cell found
+      if(grid[row][col] === EMPTY_CELL){ //empty cell found
         let count = 0;
-        for(let digit=1; digit<=GRID_SIZE; digit++){
+        for(const digit of DIGITS){
           if(this.isValid(grid, row, col, digit)){
             grid[row][col] = digit; //place digit
             count += this.countSolutions(grid, adjacency, limit - count); //recurse
-            grid[row][col] = 0; //reset cell
+            grid[row][col] = EMPTY_CELL; //reset cell
             if(count >= limit) return count; //early exit
           }
         }
@@ -225,7 +225,7 @@ export class SudokuEngine {
       //const row = Math.floor(index/GRID_SIZE);
       //const col = index%GRID_SIZE;
       const backup = puzzle[row][col];
-      puzzle[row][col] = 0;
+      puzzle[row][col] = EMPTY_CELL;
       if(this.countSolutions(this.clone(puzzle), graph.adjacency, 2) === 1){ //check uniqueness on clone
         cluesLeft--; //removal successful
       } else {

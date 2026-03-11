@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SudokuEngine } from './engine/SudokuEngine';
 import type { SudokuGrid, SudokuGraph } from './engine/SudokuEngine';
-import { DIFFICULTY, GRID_SIZE } from './engine/constants';
+import { DIFFICULTY, GRID_SIZE, EMPTY_CELL } from './engine/constants';
 import SudokuGridComponent from './components/SudokuGrid';
 import NumPad from './components/NumPad';
 import Controls from './components/Controls';
@@ -41,7 +41,7 @@ export default function App() {
   useEffect(() => { startNewGame('MEDIUM'); }, []);
 
   const handleCellSelect = (row: number, col: number) => {
-    if (puzzle[row]?.[col] !== 0) return;
+    if (puzzle[row]?.[col] !== EMPTY_CELL) return;
     setSelectedCell([row, col]);
   };
 
@@ -72,7 +72,7 @@ export default function App() {
     const [row, col] = selectedCell;
     setHistory(prev => [...prev, userGrid.map(r => [...r])]);
     const newGrid = userGrid.map(r => [...r]);
-    newGrid[row][col] = 0;
+    newGrid[row][col] = EMPTY_CELL;
     setUserGrid(newGrid);
   };
 
