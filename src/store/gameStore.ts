@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { SudokuEngine } from '../engine/SudokuEngine';
-import type { SudokuGrid, SudokuGraph } from '../engine/SudokuEngine';
+import type { SudokuGrid, SudokuGraph, Cage } from '../engine/SudokuEngine';
 import { DIFFICULTY, GRID_SIZE, EMPTY_CELL } from '../engine/constants';
 
 const engine = new SudokuEngine();
@@ -24,6 +24,8 @@ interface GameState {
   showGraph: boolean;
   difficulty: Difficulty;
   elapsed: number;
+  killerMode: boolean;
+  cages: Cage[];
 }
 
 interface GameActions {
@@ -34,6 +36,7 @@ interface GameActions {
   undo: () => void;
   toggleNotes: () => void;
   toggleGraph: () => void;
+  toggleKillerMode: () => void;
   tick: () => void;
   moveSelection: (dr: number, dc: number) => void;
 }
@@ -58,9 +61,13 @@ export const useGameStore = create<GameState & GameActions>()(
       showGraph: false,
       difficulty: 'MEDIUM',
       elapsed: 0,
+      killerMode: false,
+      cages: [],
 
       startNewGame: (diff) => {
+        const { killerMode } = get();
         const result = engine.generatePuzzle(DIFFICULTY[diff].clues);
+        const cages = killerMode ? engine.generateCages(result.solution, result.graph) : [];
         set({
           puzzle: result.puzzle,
           solution: result.solution,
@@ -74,6 +81,29 @@ export const useGameStore = create<GameState & GameActions>()(
           notesMode: false,
           elapsed: 0,
           difficulty: diff,
+          cages,
+        });
+      },
+
+      toggleKillerMode: () => {
+        const { killerMode, difficulty } = get();
+        const newKillerMode = !killerMode;
+        const result = engine.generatePuzzle(DIFFICULTY[difficulty].clues);
+        const cages = newKillerMode ? engine.generateCages(result.solution, result.graph) : [];
+        set({
+          killerMode: newKillerMode,
+          puzzle: result.puzzle,
+          solution: result.solution,
+          graph: result.graph,
+          userGrid: result.puzzle.map((row) => [...row]),
+          notes: emptyNotes(),
+          selectedCell: null,
+          history: [],
+          isComplete: false,
+          showGraph: false,
+          notesMode: false,
+          elapsed: 0,
+          cages,
         });
       },
 
@@ -167,6 +197,8 @@ export const useGameStore = create<GameState & GameActions>()(
         isComplete: s.isComplete,
         difficulty: s.difficulty,
         elapsed: s.elapsed,
+        killerMode: s.killerMode,
+        cages: s.cages,
       }),
     },
   ),

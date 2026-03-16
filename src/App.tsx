@@ -12,8 +12,9 @@ export default function App() {
   const {
     puzzle, solution, graph, userGrid, notes,
     selectedCell, notesMode, history, isComplete, showGraph, difficulty, elapsed,
+    killerMode, cages,
     startNewGame, selectCell, inputNumber, erase, undo,
-    toggleNotes, toggleGraph, tick, moveSelection,
+    toggleNotes, toggleGraph, toggleKillerMode, tick, moveSelection,
   } = useGameStore();
 
   // Generate a new game only on first launch (no persisted state)
@@ -72,7 +73,7 @@ export default function App() {
 
       <p className="text-gray-400 text-sm mb-4 font-mono">{mm}:{ss}</p>
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 flex-wrap justify-center">
         {(Object.keys(DIFFICULTY) as Difficulty[]).map((diff) => (
           <button
             key={diff}
@@ -84,6 +85,14 @@ export default function App() {
             {DIFFICULTY[diff].label}
           </button>
         ))}
+        <button
+          onClick={toggleKillerMode}
+          className={`px-3 py-1 rounded text-sm font-medium touch-manipulation ${
+            killerMode ? 'bg-orange-600' : 'bg-gray-700'
+          }`}
+        >
+          Killer {killerMode ? 'ON' : 'OFF'}
+        </button>
       </div>
 
       <SudokuGridComponent
@@ -91,6 +100,8 @@ export default function App() {
         userGrid={userGrid}
         notes={notes}
         solution={solution}
+        killerMode={killerMode}
+        cages={cages}
         selectedCell={selectedCell}
         onCellSelect={selectCell}
       />
