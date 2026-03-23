@@ -10,16 +10,33 @@ import UpdateToast from './components/UpdateToast';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [visitCount, setVisitCount] = useState(1);
+  const [visitCount, setVisitCount] = useState<number | string>('...');
   const hasCounted = useRef(false);
 
   useEffect(() => {
     if (hasCounted.current) return;
     hasCounted.current = true;
-    const visits = parseInt(localStorage.getItem('sudoku_visits') || '0', 10);
-    const newVisits = visits + 1;
-    localStorage.setItem('sudoku_visits', newVisits.toString());
-    setVisitCount(newVisits);
+
+    // Load local first for quick display
+    const localVisits = localStorage.getItem('sudoku_visits');
+    if (localVisits) setVisitCount(parseInt(localVisits, 10));
+
+    fetch('https://api.counterapi.dev/v1/graphsudoku/visits/up')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.count) {
+          setVisitCount(data.count);
+          localStorage.setItem('sudoku_visits', data.count.toString());
+        }
+      })
+      .catch((err) => {
+        console.error('Counter API error:', err);
+        // Fallback to local counter
+        const visits = parseInt(localVisits || '0', 10);
+        const newVisits = visits + 1;
+        setVisitCount(newVisits);
+        localStorage.setItem('sudoku_visits', newVisits.toString());
+      });
   }, []);
 
   useEffect(() => {

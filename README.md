@@ -15,6 +15,7 @@ This project was built to create a polished, deployable application that showcas
 - **Classic & Killer Sudoku**: Play traditional Sudoku or challenge yourself with Killer Sudoku (cages with target sums).
 - **Graph Visualization**: Toggle a live Graph View that visually represents the Sudoku board as a mathematical graph. Nodes are cells, and edges represent the constraints (rows, columns, and 3x3 boxes).
 - **Intelligent Puzzle Generation**: Employs a backtracking algorithm to generate guaranteed unique, solvable puzzles on the fly across multiple difficulties.
+- **Global Visit Counter**: Integrates a real-time global visit tracking API to count visits across all players worldwide.
 - **Modern User Experience**: Features dark/light mode, keyboard navigation, undo functionality, note-taking mode, and a built-in timer.
 - **Responsive Design**: Carefully crafted with Tailwind CSS for a seamless experience on both desktop and mobile devices.
 
