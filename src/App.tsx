@@ -116,12 +116,12 @@ export default function App() {
       <h1 className="text-2xl font-bold tracking-wide mb-4">Graph Sudoku</h1>
 
       {/* DEV ONLY — remove before release */}
-      <button
+      {/* <button
         onClick={() => useGameStore.setState({ userGrid: solution.map((r: number[]) => [...r]), isComplete: true })}
         className="mb-2 px-3 py-1 bg-red-800 text-xs rounded text-white"
       >
         [DEV] Complete
-      </button>
+      </button> */}
 
       <p className="text-gray-400 text-sm mb-4 font-mono">{mm}:{ss}</p>
 
@@ -130,7 +130,7 @@ export default function App() {
           <button
             key={diff}
             onClick={() => startNewGame(diff)}
-            className={`px-3 py-1 rounded text-sm font-medium touch-manipulation ${
+            className={`px-3 py-1 rounded text-sm font-medium touch-manipulation text-[#f8f5ee] dark:text-white ${
               difficulty === diff ? 'bg-blue-600' : 'bg-gray-700'
             }`}
           >
@@ -139,7 +139,7 @@ export default function App() {
         ))}
         <button
           onClick={toggleKillerMode}
-          className={`px-3 py-1 rounded text-sm font-medium touch-manipulation ${
+          className={`px-3 py-1 rounded text-sm font-medium touch-manipulation text-[#f8f5ee] dark:text-white ${
             killerMode ? 'bg-orange-600' : 'bg-gray-700'
           }`}
         >
