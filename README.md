@@ -1,73 +1,71 @@
-# React + TypeScript + Vite
+# 🧩 Graph Sudoku 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**[Play Live on Vercel: graphsudoku.vercel.app](https://graphsudoku.vercel.app/)**
 
-Currently, two official plugins are available:
+An advanced, interactive Sudoku web application that beautifully bridges classic puzzle mechanics with **Graph Theory**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 💡 The Motivation
 
-## React Compiler
+I play Sudoku regularly, and over time, it became more than just a passing hobby—it became a fascinating puzzle of logic and constraints. As a developer, I wanted to build an application that physically embodies this interest. More importantly, I wanted to explore the underlying mathematics of Sudoku by combining my love for the game with **Graph Theory**. 
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+This project was built to create a polished, deployable application that showcases both my technical interests and my passion for problem-solving. It demonstrates the intersection of theoretical computer science and interactive web development.
 
-## Expanding the ESLint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Classic & Killer Sudoku**: Play traditional Sudoku or challenge yourself with Killer Sudoku (cages with target sums).
+- **Graph Visualization**: Toggle a live Graph View that visually represents the Sudoku board as a mathematical graph. Nodes are cells, and edges represent the constraints (rows, columns, and 3x3 boxes).
+- **Intelligent Puzzle Generation**: Employs a backtracking algorithm to generate guaranteed unique, solvable puzzles on the fly across multiple difficulties.
+- **Modern User Experience**: Features dark/light mode, keyboard navigation, undo functionality, note-taking mode, and a built-in timer.
+- **Responsive Design**: Carefully crafted with Tailwind CSS for a seamless experience on both desktop and mobile devices.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Technology Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Frontend Framework**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS
+- **State Management**: Zustand
+- **Data Visualization**: D3.js (for graph representations)
+- **Deployment**: Local PWA support via Vite PWA plugin
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🧮 How Graph Theory Meets Sudoku
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Every Sudoku board can be abstracted as a graph constraint satisfaction problem:
+- **Nodes (Vertices)**: The 81 cells of the grid.
+- **Edges**: Connections between cells that cannot share the same number. Edges are drawn between nodes that reside in the same row, same column, or same 3x3 box.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+By implementing this architecture, the application doesn't just treat the board as a 2D array, but as an adjacency matrix. This approach enables specialized solving algorithms and allows the user to visualize the constraints interactively through the built-in D3.js Graph View.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🚀 Getting Started
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18 or higher recommended)
+- npm or yarn
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/graph-sudoku.git
+   cd graph-sudoku
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Build for production:
+   ```bash
+   npm run build
+   ```
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/yourusername/graph-sudoku/issues).
+
+## 📝 License
+
+This project is open-source and available under the MIT License.
