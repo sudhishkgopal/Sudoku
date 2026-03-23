@@ -58,7 +58,9 @@ function CageOverlay({
         );
         const exceeded = currentSum > cage.sum;
         const correct = filled && currentSum === cage.sum;
-        const color = correct ? "#4ade80" : exceeded ? "#f87171" : "#f59e0b";
+        
+        const lineClass = correct ? "stroke-green-600 dark:stroke-[#41e9b4]" : exceeded ? "stroke-red-600 dark:stroke-[#d66767]" : "stroke-gray-500 dark:stroke-gray-300";
+        const textClass = correct ? "fill-green-700 dark:fill-[#41e9b4]" : exceeded ? "fill-red-700 dark:fill-[#d66767]" : "fill-gray-600 dark:fill-gray-300";
 
         const segments: { x1: number; y1: number; x2: number; y2: number }[] =
           [];
@@ -94,7 +96,7 @@ function CageOverlay({
                 y1={seg.y1}
                 x2={seg.x2}
                 y2={seg.y2}
-                stroke={color}
+                className={lineClass + " transition-colors duration-300"}
                 strokeWidth={0.07}
                 strokeDasharray="0.18 0.1"
               />
@@ -103,7 +105,7 @@ function CageOverlay({
               x={labelCell.col + 0.08}
               y={labelCell.row + 0.3}
               fontSize={0.28}
-              fill={color}
+              className={textClass + " transition-colors duration-300"}
               fontWeight="bold"
               fontFamily="monospace"
             >
@@ -130,7 +132,7 @@ export default function SudokuGridComponent({
   return (
     <div style={{ position: "relative", width: "min(95vw, 450px)" }}>
       <div
-        className="grid border-2 border-gray-400"
+        className="grid border-2 border-gray-500 dark:border-gray-400 transition-colors duration-300 bg-gray-400 dark:bg-transparent"
         style={{
           gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
         }}
@@ -151,18 +153,18 @@ export default function SudokuGridComponent({
               selectedCell &&
               (selectedCell[0] === ri || selectedCell[1] === ci);
 
-            let bg = "bg-gray-900";
-            if (sameRowCol || sameBox) bg = "bg-gray-800";
-            if (isSelected) bg = "bg-blue-900";
+            let bg = "bg-white dark:bg-gray-900";
+            if (sameRowCol || sameBox) bg = "bg-gray-100 dark:bg-gray-800";
+            if (isSelected) bg = "bg-blue-100 dark:bg-blue-900";
 
             const borderR =
               (ci + 1) % BOX_SIZE === 0 && ci < GRID_SIZE - 1
-                ? "border-r-2 border-r-gray-400"
-                : "border-r border-r-gray-700";
+                ? "border-r-2 border-r-gray-500 dark:border-r-gray-400"
+                : "border-r border-r-gray-300 dark:border-r-gray-700";
             const borderB =
               (ri + 1) % BOX_SIZE === 0 && ri < GRID_SIZE - 1
-                ? "border-b-2 border-b-gray-400"
-                : "border-b border-b-gray-700";
+                ? "border-b-2 border-b-gray-500 dark:border-b-gray-400"
+                : "border-b border-b-gray-300 dark:border-b-gray-700";
 
             const cellNotes = notes[ri]?.[ci];
 
@@ -176,10 +178,10 @@ export default function SudokuGridComponent({
                   <span
                     className={`text-lg font-semibold ${
                       isGiven
-                        ? "text-gray-200"
+                        ? "text-gray-900 dark:text-gray-200"
                         : conflict
-                          ? "text-red-400"
-                          : "text-blue-400"
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-blue-600 dark:text-blue-400"
                     }`}
                   >
                     {cell}
@@ -189,7 +191,7 @@ export default function SudokuGridComponent({
                     {DIGITS.map((n) => (
                       <span
                         key={n}
-                        className="flex items-center justify-center text-gray-500"
+                        className="flex items-center justify-center text-gray-500 dark:text-gray-500"
                         style={{ fontSize: "0.45rem" }}
                       >
                         {cellNotes.includes(n) ? n : ""}

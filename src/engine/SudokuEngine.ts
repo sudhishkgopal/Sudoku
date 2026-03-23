@@ -252,21 +252,22 @@ export class SudokuEngine {
   //        e. Push { id, cells, sum } to cages array
   //   4. Return cages
 
-  public generateCages(solution: SudokuGrid, _graph: SudokuGraph): Cage[] {
+  public generateCages(solution: SudokuGrid, _graph: SudokuGraph, puzzle?: SudokuGrid): Cage[] {
     const assigned = new Array(CELL_COUNT).fill(false); //flat boolean array indexed by flat cell index
     const cages: Cage[] = [];
     let nextId = 0;
 
-    const sizeWeights = [1, 3, 3, 2, 1]; //weights for cage sizes 1-5
+    // Weights for sizes 2, 3, 4, 5, 6
+    const sizeWeights = [3, 4, 3, 2, 1]; 
     const totalWieght = sizeWeights.reduce((a, b) => a + b, 0);
 
     const pickSize = (): number =>{
       let r = Math.random() * totalWieght;
       for(let i=0; i<sizeWeights.length; i++){
         r -= sizeWeights[i];
-        if(r <= 0) return i+1;
+        if(r <= 0) return i+2; // Output sizes 2 through 6
       }
-      return 1; //fallback
+      return 2; //fallback
     };
 
     const orthogonalNeightbors = (index: number): number[] =>{
@@ -285,7 +286,7 @@ export class SudokuEngine {
       assigned[seed] = true;
       const targetSize = pickSize();
 
-      while(cageIndicies.length < targetSize){
+      while(cageIndicies.length < targetSize || (puzzle && cageIndicies.every(index => puzzle[Math.floor(index/GRID_SIZE)][index%GRID_SIZE] !== EMPTY_CELL))){
         const frontier = new Map<number, number>(); //flat index to flat index
 
         for(const index of cageIndicies){
@@ -309,6 +310,43 @@ export class SudokuEngine {
       const sum = cells.reduce((acc, cell) => acc + solution[cell.row][cell.col], 0);
       cages.push({id: nextId++, cells, sum});
     }
+
+    let changed = true;
+    while(changed) {
+      changed = false;
+      for (let i = 0; i < cages.length; i++) {
+        const cage = cages[i];
+        const isSizeInvalid = cage.cells.length < 2;
+        const isPreComplete = puzzle ? cage.cells.every((c: CageCell) => puzzle[c.row][c.col] !== EMPTY_CELL) : false;
+
+        if (isSizeInvalid || isPreComplete) {
+          const cageCellKeys = new Set(cage.cells.map((c: CageCell) => `${c.row},${c.col}`));
+          const adjacentCages = cages.filter(c => 
+            c.id !== cage.id && 
+            c.cells.some((cell: CageCell) => 
+              cageCellKeys.has(`${cell.row-1},${cell.col}`) ||
+              cageCellKeys.has(`${cell.row+1},${cell.col}`) ||
+              cageCellKeys.has(`${cell.row},${cell.col-1}`) ||
+              cageCellKeys.has(`${cell.row},${cell.col+1}`)
+            )
+          );
+
+          if (adjacentCages.length > 0) {
+            adjacentCages.sort((a, b) => a.cells.length - b.cells.length);
+            let targetCage = adjacentCages.find(c => c.cells.length + cage.cells.length <= 6);
+            if (!targetCage) {
+              targetCage = adjacentCages[0];
+            }
+            targetCage.cells.push(...cage.cells);
+            targetCage.sum += cage.sum;
+            cages.splice(i, 1);
+            changed = true;
+            break;
+          }
+        }
+      }
+    }
+
     return cages;
   }
 

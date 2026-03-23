@@ -67,7 +67,7 @@ export const useGameStore = create<GameState & GameActions>()(
       startNewGame: (diff) => {
         const { killerMode } = get();
         const result = engine.generatePuzzle(DIFFICULTY[diff].clues);
-        const cages = killerMode ? engine.generateCages(result.solution, result.graph) : [];
+        const cages = killerMode ? engine.generateCages(result.solution, result.graph, result.puzzle) : [];
         set({
           puzzle: result.puzzle,
           solution: result.solution,
@@ -89,7 +89,7 @@ export const useGameStore = create<GameState & GameActions>()(
         const { killerMode, difficulty } = get();
         const newKillerMode = !killerMode;
         const result = engine.generatePuzzle(DIFFICULTY[difficulty].clues);
-        const cages = newKillerMode ? engine.generateCages(result.solution, result.graph) : [];
+        const cages = newKillerMode ? engine.generateCages(result.solution, result.graph, result.puzzle) : [];
         set({
           killerMode: newKillerMode,
           puzzle: result.puzzle,

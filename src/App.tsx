@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useGameStore } from './store/gameStore';
 import type { Difficulty } from './store/gameStore';
 import { DIFFICULTY, GRID_SIZE, DIGITS } from './engine/constants';
@@ -9,6 +9,27 @@ import GraphView from './components/GraphView';
 import UpdateToast from './components/UpdateToast';
 
 export default function App() {
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [visitCount, setVisitCount] = useState(1);
+  const hasCounted = useRef(false);
+
+  useEffect(() => {
+    if (hasCounted.current) return;
+    hasCounted.current = true;
+    const visits = parseInt(localStorage.getItem('sudoku_visits') || '0', 10);
+    const newVisits = visits + 1;
+    localStorage.setItem('sudoku_visits', newVisits.toString());
+    setVisitCount(newVisits);
+  }, []);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   const {
     puzzle, solution, graph, userGrid, notes,
     selectedCell, notesMode, history, isComplete, showGraph, difficulty, elapsed,
@@ -58,7 +79,21 @@ export default function App() {
   const ss = String(elapsed % 60).padStart(2, '0');
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center py-6 px-4">
+    <div className="min-h-screen bg-[#f8f5ee] dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-300 flex flex-col items-center pt-14 pb-6 px-4 relative">
+      <div className="absolute top-4 right-4 text-sm font-semibold text-gray-500 dark:text-gray-400 transition-colors duration-300">
+        Visits: {visitCount}
+      </div>
+      <button
+        onClick={() => setIsDarkMode(!isDarkMode)}
+        className={`absolute top-2 left-4 p-2 rounded-full transition-colors duration-300 ${
+          isDarkMode ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+        }`}
+        aria-label="Toggle Theme"
+        title="Toggle Light/Dark Mode"
+      >
+        {isDarkMode ? '🌙' : '☀️'}
+      </button>
+
       <UpdateToast />
 
       <h1 className="text-2xl font-bold tracking-wide mb-4">Graph Sudoku</h1>
