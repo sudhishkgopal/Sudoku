@@ -50,7 +50,7 @@ export default function App() {
   const {
     puzzle, solution, graph, userGrid, notes,
     selectedCell, notesMode, history, isComplete, showGraph, difficulty, elapsed,
-    killerMode, cages,
+    killerMode, cages, mistakes, isLost,
     startNewGame, selectCell, inputNumber, erase, undo,
     toggleNotes, toggleGraph, toggleKillerMode, tick, moveSelection,
   } = useGameStore();
@@ -62,10 +62,10 @@ export default function App() {
 
   // Timer — increments elapsed every second until puzzle is complete
   useEffect(() => {
-    if (isComplete) return;
+    if (isComplete || isLost) return;
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [isComplete, tick]);
+  }, [isComplete, isLost, tick]);
 
   // Keyboard — arrow navigation + digit/erase input
   useEffect(() => {
@@ -125,6 +125,30 @@ export default function App() {
 
       <p className="text-gray-400 text-sm mb-4 font-mono">{mm}:{ss}</p>
 
+      {killerMode && (
+        <div className="flex gap-1 mb-4">
+          {[...Array(3)].map((_, i) => (
+            <svg
+              key={i}
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill={i < 3 - mistakes ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`w-6 h-6 transition-all duration-300 ${
+                i < 3 - mistakes
+                  ? "text-red-500 scale-100 drop-shadow-sm"
+                  : "text-gray-300 dark:text-gray-700 scale-90"
+              }`}
+            >
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+            </svg>
+          ))}
+        </div>
+      )}
+
       <div className="flex gap-2 mb-4 flex-wrap justify-center">
         {(Object.keys(DIFFICULTY) as Difficulty[]).map((diff) => (
           <button
@@ -147,16 +171,32 @@ export default function App() {
         </button>
       </div>
 
-      <SudokuGridComponent
-        puzzle={puzzle}
-        userGrid={userGrid}
-        notes={notes}
-        solution={solution}
-        killerMode={killerMode}
-        cages={cages}
-        selectedCell={selectedCell}
-        onCellSelect={selectCell}
-      />
+      <div className="relative">
+        <SudokuGridComponent
+          puzzle={puzzle}
+          userGrid={userGrid}
+          notes={notes}
+          solution={solution}
+          killerMode={killerMode}
+          cages={cages}
+          selectedCell={selectedCell}
+          onCellSelect={selectCell}
+        />
+        {(isComplete || isLost) && (
+          <div className="absolute inset-0 bg-white/80 dark:bg-black/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center animate-fade-in">
+            {isComplete && (
+              <p className="text-green-600 dark:text-green-400 font-bold text-3xl animate-bounce drop-shadow-md">
+                Puzzle Complete!
+              </p>
+            )}
+            {isLost && (
+              <p className="text-red-600 dark:text-red-500 font-bold text-3xl animate-pulse drop-shadow-md">
+                Game Over!
+              </p>
+            )}
+          </div>
+        )}
+      </div>
 
       <Controls
         notesMode={notesMode}
@@ -169,12 +209,6 @@ export default function App() {
       />
 
       <NumPad onNumber={inputNumber} onErase={erase} remaining={remaining} />
-
-      {isComplete && (
-        <p className="mt-4 text-green-400 font-semibold text-lg animate-pulse">
-          Puzzle Complete!
-        </p>
-      )}
 
       {showGraph && graph && (
         <div className="mt-4">

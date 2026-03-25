@@ -26,6 +26,8 @@ interface GameState {
   elapsed: number;
   killerMode: boolean;
   cages: Cage[];
+  mistakes: number;
+  isLost: boolean;
 }
 
 interface GameActions {
@@ -63,6 +65,8 @@ export const useGameStore = create<GameState & GameActions>()(
       elapsed: 0,
       killerMode: false,
       cages: [],
+      mistakes: 0,
+      isLost: false,
 
       startNewGame: (diff) => {
         const { killerMode } = get();
@@ -82,6 +86,8 @@ export const useGameStore = create<GameState & GameActions>()(
           elapsed: 0,
           difficulty: diff,
           cages,
+          mistakes: 0,
+          isLost: false,
         });
       },
 
@@ -104,6 +110,8 @@ export const useGameStore = create<GameState & GameActions>()(
           notesMode: false,
           elapsed: 0,
           cages,
+          mistakes: 0,
+          isLost: false,
         });
       },
 
@@ -114,7 +122,8 @@ export const useGameStore = create<GameState & GameActions>()(
       },
 
       inputNumber: (num) => {
-        const { selectedCell, puzzle, notesMode, notes, userGrid, solution } = get();
+        const { selectedCell, puzzle, notesMode, notes, userGrid, solution, isComplete, isLost, killerMode, mistakes } = get();
+        if (isComplete || isLost) return;
         if (!selectedCell) return;
         const [row, col] = selectedCell;
         if (puzzle[row][col] !== EMPTY_CELL) return;
@@ -129,6 +138,20 @@ export const useGameStore = create<GameState & GameActions>()(
           return;
         }
 
+        if (userGrid[row][col] === num) return;
+
+        let newMistakes = mistakes;
+        let newIsLost: boolean = isLost;
+
+        if (num !== solution[row][col]) {
+          if (killerMode) {
+            newMistakes += 1;
+            if (newMistakes >= 3) {
+              newIsLost = true;
+            }
+          }
+        }
+
         const newGrid = userGrid.map((r) => [...r]);
         newGrid[row][col] = num;
         const complete = newGrid.every((r, ri) =>
@@ -137,12 +160,15 @@ export const useGameStore = create<GameState & GameActions>()(
         set({
           history: [...get().history, userGrid.map((r) => [...r])],
           userGrid: newGrid,
+          mistakes: newMistakes,
+          isLost: newIsLost,
           ...(complete && { isComplete: true }),
         });
       },
 
       erase: () => {
-        const { selectedCell, userGrid, puzzle } = get();
+        const { selectedCell, userGrid, puzzle, isComplete, isLost } = get();
+        if (isComplete || isLost) return;
         if (!selectedCell) return;
         const [row, col] = selectedCell;
         if (puzzle[row][col] !== EMPTY_CELL) return;
@@ -155,7 +181,8 @@ export const useGameStore = create<GameState & GameActions>()(
       },
 
       undo: () => {
-        const { history } = get();
+        const { history, isComplete, isLost } = get();
+        if (isComplete || isLost) return;
         if (!history.length) return;
         set({
           userGrid: history[history.length - 1],
@@ -167,7 +194,7 @@ export const useGameStore = create<GameState & GameActions>()(
       toggleGraph: () => set((s) => ({ showGraph: !s.showGraph })),
 
       tick: () => {
-        if (!get().isComplete) set((s) => ({ elapsed: s.elapsed + 1 }));
+        if (!get().isComplete && !get().isLost) set((s) => ({ elapsed: s.elapsed + 1 }));
       },
 
       moveSelection: (dr, dc) => {
@@ -199,6 +226,8 @@ export const useGameStore = create<GameState & GameActions>()(
         elapsed: s.elapsed,
         killerMode: s.killerMode,
         cages: s.cages,
+        mistakes: s.mistakes,
+        isLost: s.isLost,
       }),
     },
   ),
