@@ -21,7 +21,7 @@ export default function App() {
     const localVisits = localStorage.getItem('sudoku_visits');
     if (localVisits) setVisitCount(parseInt(localVisits, 10));
 
-    fetch('https://api.counterapi.dev/v1/graphsudoku/visits/up')
+    fetch('/api/visit')
       .then((res) => res.json())
       .then((data) => {
         if (data && data.count) {
@@ -30,8 +30,8 @@ export default function App() {
         }
       })
       .catch((err) => {
-        console.error('Counter API error:', err);
-        // Fallback to local counter
+        console.error('Visit counter error:', err);
+        // Fallback to local counter only if backend fails or in Dev
         const visits = parseInt(localVisits || '0', 10);
         const newVisits = visits + 1;
         setVisitCount(newVisits);
